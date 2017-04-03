@@ -19,8 +19,10 @@ void free_watcher(Watcher w) {
   free(w);
 }
 
-int run_watcher(Watcher w) {
+int run_watcher(Watcher w, int check_status) {
   int fd = spawn(w->command);
+  int prev_status = w->last_status;
+  int stat;
 
   Buffer * next_ptr = &w->last_output;
   Buffer bytes_read;
@@ -40,6 +42,17 @@ int run_watcher(Watcher w) {
     }
 
     next_ptr = &(*next_ptr)->next;
+  }
+
+  close(fd);
+
+  wait(&stat);
+  if (WIFEXITED(stat)) {
+    w->last_status = WEXITSTATUS(stat);
+  }
+
+  if (check_status && w->last_status != prev_status) {
+    return 1;
   }
 
   return diff;
