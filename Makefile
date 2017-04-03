@@ -30,7 +30,8 @@ all: ctags $(PROGS)
 detecter: bin/main
 	ln -sf $< $@
 
-src/main.c: src/watch.h src/util.h
+src/buffer.c: src/buffer.h
+src/main.c: src/watch.h src/util.h src/buffer.h
 src/spawn.c: src/spawn.h
 src/util.c: src/util.h
 src/watch.c: src/watch.h src/spawn.h
@@ -39,7 +40,7 @@ obj/%.o: src/%.c
 	@mkdir -p obj
 	$(CC) $(CFLAGS) -c $< -o $@
 
-bin/main: obj/main.o obj/watch.o obj/util.o obj/spawn.o
+bin/main: obj/main.o obj/watch.o obj/util.o obj/spawn.o obj/buffer.o
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $^ -o $@
 
