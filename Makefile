@@ -30,11 +30,14 @@ all: ctags $(PROGS)
 detecter: bin/main
 	ln -sf $< $@
 
+src/main.c: src/watch.h
+src/watch.c: src/watch.h
+
 obj/%.o: src/%.c
 	@mkdir -p obj
 	$(CC) $(CFLAGS) -c $< -o $@
 
-bin/main: obj/main.o
+bin/main: obj/main.o obj/watch.o
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $^ -o $@
 
@@ -62,7 +65,7 @@ ctags:
 	ctags src/*.[ch]
 
 clean:
-	rm -f $(PROGS) obj/*.o
+	rm -f $(PROGS)
 	rm -f *.gc*
 	rm -f *.log *.tmp
 	rm -f tags core
