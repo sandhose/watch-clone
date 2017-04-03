@@ -10,6 +10,7 @@ int spawn(char * const command[]) {
   pid = fork();
 
   if (pid == 0) {
+    close(0);
     close(fildes[0]);
     dup2(fildes[1], 1);
     execvp(command[0], command);

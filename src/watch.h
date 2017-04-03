@@ -4,6 +4,7 @@
 #define BUF_SIZE 1024
 
 typedef struct s_buffer {
+  int size;
   char * content;
   struct s_buffer * next;
 } * Buffer;
@@ -19,5 +20,9 @@ Watcher create_watcher(char * command[]);
 int run_watcher(Watcher);
 
 void free_watcher(Watcher);
+
+void putb(Buffer);
+
+Buffer read_to_buffer(int fd);
 
 #endif

@@ -57,6 +57,7 @@ int main(int argc, char * argv[]) {
 
   Watcher w = create_watcher(argv);
   int ret = run_watcher(w);
+  putb(w->last_output);
   free_watcher(w);
   return ret;
 }
