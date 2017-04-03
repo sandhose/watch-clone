@@ -1,6 +1,8 @@
 #include <stdlib.h>
-#include <stdio.h>
+#include <unistd.h>
+
 #include "watch.h"
+#include "spawn.h"
 
 Buffer create_buffer() {
   Buffer b = malloc(sizeof(struct s_buffer));
@@ -30,6 +32,13 @@ void free_watcher(Watcher w) {
 }
 
 int run_watcher(Watcher w) {
-  (void)w;
+  int fd = spawn(w->command);
+  char buf[BUF_SIZE];
+  int ch;
+
+  while((ch = read(fd, buf, BUF_SIZE)) > 0) {
+    write(1, buf, ch);
+  }
+
   return 0;
 }
