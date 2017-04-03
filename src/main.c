@@ -56,8 +56,14 @@ int main(int argc, char * argv[]) {
   }
 
   Watcher w = create_watcher(argv);
-  int ret = run_watcher(w);
+
+  int ret1 = run_watcher(w);
   putb(w->last_output);
+  int ret2 = run_watcher(w);
+  putb(w->last_output);
+  int ret3 = run_watcher(w);
+  putb(w->last_output);
+
+  printf("%d, %d, %d\n", ret1, ret2, ret3);
   free_watcher(w);
-  return ret;
 }

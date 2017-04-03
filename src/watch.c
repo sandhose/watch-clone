@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "watch.h"
 #include "spawn.h"
@@ -32,6 +33,14 @@ void free_watcher(Watcher w) {
   free(w);
 }
 
+int compare_buffers(Buffer a, Buffer b) {
+  if (a == b) return 1;
+  else if (a == NULL || b == NULL) return 0;
+  else if (a->size != b->size) return 0;
+  else if (memcmp(a->content, b->content, a->size) == 0) return 1;
+  else return 0;
+}
+
 void putb(Buffer b) {
   if (b == NULL) return;
   write(1, b->content, b->size);
@@ -54,10 +63,24 @@ int run_watcher(Watcher w) {
   int fd = spawn(w->command);
 
   Buffer * next_ptr = &w->last_output;
+  Buffer bytes_read;
 
-  while((*next_ptr = read_to_buffer(fd)) != NULL) {
-    next_ptr = &((*next_ptr)->next);
+  int diff = 0;
+
+  while((bytes_read = read_to_buffer(fd)) != NULL) {
+    if (!diff && !compare_buffers(bytes_read, *next_ptr)) {
+      diff = 1;
+    }
+
+    if (diff) {
+      free_buffer(*next_ptr);
+      *next_ptr = bytes_read;
+    } else {
+      free_buffer(bytes_read);
+    }
+
+    next_ptr = &(*next_ptr)->next;
   }
 
-  return 0;
+  return diff;
 }
