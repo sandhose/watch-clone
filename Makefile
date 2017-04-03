@@ -30,14 +30,14 @@ all: ctags $(PROGS)
 detecter: bin/main
 	ln -sf $< $@
 
-src/main.c: src/watch.h
+src/main.c: src/watch.h src/util.h
 src/watch.c: src/watch.h
 
 obj/%.o: src/%.c
 	@mkdir -p obj
 	$(CC) $(CFLAGS) -c $< -o $@
 
-bin/main: obj/main.o obj/watch.o
+bin/main: obj/main.o obj/watch.o obj/util.o
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $^ -o $@
 

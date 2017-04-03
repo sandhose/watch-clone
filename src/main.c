@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "util.h"
 #include "watch.h"
 
 void usage(char prog_name[]) {
@@ -54,5 +55,8 @@ int main(int argc, char * argv[]) {
     return 1;
   }
 
-  return watch(argv, opt_format, opt_interval, opt_limit, opt_flag_check_status);
+  Watcher w = create_watcher(argv);
+  int ret = run_watcher(w);
+  free_watcher(w);
+  return ret;
 }
