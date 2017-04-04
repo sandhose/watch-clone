@@ -7,12 +7,13 @@
 Buffer create_buffer() {
   Buffer b = malloc(sizeof(struct s_buffer));
   b->size = 0;
-  b->content = calloc(BUF_SIZE, sizeof(char));
+  b->content = malloc(BUF_SIZE);
   b->next = NULL;
   return b;
 }
 
 void free_buffer(Buffer buffer) {
+  if (!buffer) return;
   if (buffer->next)
     free_buffer(buffer->next);
   free(buffer->content);

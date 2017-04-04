@@ -71,8 +71,13 @@ int run_loop(Watcher w, char* format, int interval, int limit, int status) {
   while(limit == 0 || w->run_count < limit){
     if(format)
       print_time(format);
-    if(run_watcher(w, status))
+    if(run_watcher(w, status)) {
       print_buffer(w->last_output);
+      if (status) {
+        printf("exit %d\n", w->last_status);
+        fflush(stdout);
+      }
+    }
     usleep(interval * 1000);
   }
   return 0;

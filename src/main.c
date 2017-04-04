@@ -34,10 +34,16 @@ int main(int argc, char * argv[]) {
         opt_format = optarg;
         break;
       case 'i':
-        opt_interval = atoi(optarg);
+        if ((opt_interval = atoi(optarg)) <= 0) {
+          usage(prog_name);
+          return 1;
+        }
         break;
       case 'l':
-        opt_limit = atoi(optarg);
+        if ((opt_limit = atoi(optarg)) <= 0) {
+          usage(prog_name);
+          return 1;
+        }
         break;
       case 'c':
         opt_flag_check_status = 1;
