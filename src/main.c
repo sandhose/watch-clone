@@ -13,7 +13,7 @@ void usage(char prog_name[]) {
     "\n"
     "\nOptions:"
     "\n  -t format	TODO"
-    "\n  -f interval	TODO"
+    "\n  -i interval	TODO"
     "\n  -l limit	TODO"
     "\n  -c		TODO"
     "\n", prog_name);
@@ -28,12 +28,12 @@ int main(int argc, char * argv[]) {
   int opt_flag_check_status = 0;
 
   char ch;
-  while((ch = getopt(argc, argv, "t:f:l:c")) != -1) {
+  while((ch = getopt(argc, argv, "+t:i:l:c")) != -1) {
     switch (ch) {
       case 't':
         opt_format = optarg;
         break;
-      case 'f':
+      case 'i':
         opt_interval = atoi(optarg);
         break;
       case 'l':
@@ -57,12 +57,7 @@ int main(int argc, char * argv[]) {
     return 1;
   }
 
-  (void)opt_format;
-  (void)opt_interval;
-  (void)opt_limit;
-
   Watcher w = create_watcher(argv);
-
   run_loop(w, opt_format, opt_interval, opt_limit, opt_flag_check_status);
   free_watcher(w);
 }

@@ -6,6 +6,7 @@
 typedef struct s_watcher {
   Buffer last_output;
   int last_status;
+  int run_count;
   char ** command;
 } * Watcher;
 

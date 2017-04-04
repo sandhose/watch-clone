@@ -12,9 +12,10 @@
 
 Watcher create_watcher(char * command[]) {
   Watcher w = malloc(sizeof(struct s_watcher));
-  w->command = command;
   w->last_output = create_buffer();
   w->last_status = 0;
+  w->run_count = 0;
+  w->command = command;
   return w;
 }
 
@@ -32,6 +33,8 @@ int run_watcher(Watcher w, int check_status) {
   Buffer bytes_read;
 
   int diff = 0;
+
+  if (w->run_count == 0) diff = 1;
 
   while((bytes_read = read_to_buffer(fd)) != NULL) {
     if (!diff && !compare_buffers(bytes_read, *next_ptr)) {
@@ -55,6 +58,8 @@ int run_watcher(Watcher w, int check_status) {
     w->last_status = WEXITSTATUS(stat);
   }
 
+  w->run_count++;
+
   if (check_status && w->last_status != prev_status) {
     return 1;
   }
@@ -63,15 +68,12 @@ int run_watcher(Watcher w, int check_status) {
 }
 
 int run_loop(Watcher w, char* format, int interval, int limit, int status) {
-  int i = 0;
-  while(limit==0 || i<limit){
+  while(limit == 0 || w->run_count < limit){
     if(format)
       print_time(format);
-    if(run_watcher(w, status)){
+    if(run_watcher(w, status))
       print_buffer(w->last_output);
-    }
-    printf("%d", interval);
-    usleep(interval);
+    usleep(interval * 1000);
   }
   return 0;
 }
