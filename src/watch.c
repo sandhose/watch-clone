@@ -3,10 +3,12 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <stdio.h>
 
 #include "buffer.h"
 #include "watch.h"
 #include "spawn.h"
+#include "util.h"
 
 Watcher create_watcher(char * command[]) {
   Watcher w = malloc(sizeof(struct s_watcher));
@@ -58,4 +60,18 @@ int run_watcher(Watcher w, int check_status) {
   }
 
   return diff;
+}
+
+int run_loop(Watcher w, char* format, int interval, int limit, int status) {
+  int i = 0;
+  while(limit==0 || i<limit){
+    if(format)
+      print_time(format);
+    if(run_watcher(w, status)){
+      print_buffer(w->last_output);
+    }
+    printf("%d", interval);
+    usleep(interval);
+  }
+  return 0;
 }

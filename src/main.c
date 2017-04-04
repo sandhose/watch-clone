@@ -63,13 +63,6 @@ int main(int argc, char * argv[]) {
 
   Watcher w = create_watcher(argv);
 
-  int ret1 = run_watcher(w, opt_flag_check_status);
-  print_buffer(w->last_output);
-  int ret2 = run_watcher(w, opt_flag_check_status);
-  print_buffer(w->last_output);
-  int ret3 = run_watcher(w, opt_flag_check_status);
-  print_buffer(w->last_output);
-
-  printf("%d, %d, %d\n", ret1, ret2, ret3);
+  run_loop(w, opt_format, opt_interval, opt_limit, opt_flag_check_status);
   free_watcher(w);
 }
