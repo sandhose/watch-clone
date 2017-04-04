@@ -57,6 +57,10 @@ int main(int argc, char * argv[]) {
     return 1;
   }
 
+  (void)opt_format;
+  (void)opt_interval;
+  (void)opt_limit;
+
   Watcher w = create_watcher(argv);
 
   int ret1 = run_watcher(w, opt_flag_check_status);
