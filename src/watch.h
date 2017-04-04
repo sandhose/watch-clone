@@ -12,7 +12,7 @@ typedef struct s_watcher {
 
 Watcher create_watcher(char * command[]);
 
-int run_watcher(Watcher, int check_status);
+int run_watcher(Watcher);
 
 void free_watcher(Watcher);
 

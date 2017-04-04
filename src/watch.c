@@ -24,9 +24,8 @@ void free_watcher(Watcher w) {
   free(w);
 }
 
-int run_watcher(Watcher w, int check_status) {
+int run_watcher(Watcher w) {
   int fd = spawn(w->command);
-  int prev_status = w->last_status;
   int stat;
 
   Buffer * next_ptr = &w->last_output;
@@ -60,24 +59,25 @@ int run_watcher(Watcher w, int check_status) {
 
   w->run_count++;
 
-  if (check_status && w->last_status != prev_status) {
-    return 1;
-  }
-
   return diff;
 }
 
-int run_loop(Watcher w, char* format, int interval, int limit, int status) {
+int run_loop(Watcher w, char* format, int interval, int limit, int check_status) {
+  int prev_status = -1;
   while(limit == 0 || w->run_count < limit){
     if(format)
       print_time(format);
-    if(run_watcher(w, status)) {
+
+    if(run_watcher(w))
       print_buffer(w->last_output);
-      if (status) {
-        printf("exit %d\n", w->last_status);
-        fflush(stdout);
-      }
+
+    if(check_status && prev_status != w->last_status) {
+      printf("exit %d\n", w->last_status);
+      fflush(stdout);
     }
+
+    prev_status = w->last_status;
+
     usleep(interval * 1000);
   }
   return 0;

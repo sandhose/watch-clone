@@ -66,4 +66,6 @@ int main(int argc, char * argv[]) {
   Watcher w = create_watcher(argv);
   run_loop(w, opt_format, opt_interval, opt_limit, opt_flag_check_status);
   free_watcher(w);
+
+  return 0;
 }
