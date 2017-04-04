@@ -48,7 +48,7 @@ coverage: clean
 	$(MAKE) COVERAGE=$(COV)
 
 gcov:
-	gcov src/*.c
+	gcov -o obj/ src/*.c
 
 # Par défaut, "test" lance les tests sans valgrind.
 # Si on souhaite utiliser valgrind (conseillé), positionner la
@@ -69,6 +69,6 @@ ctags:
 
 clean:
 	rm -f $(PROGS)
-	rm -f *.gc*
+	rm -f obj/*
 	rm -f *.log *.tmp
 	rm -f tags core

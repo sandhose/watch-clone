@@ -4,3 +4,4 @@ detecter
 test-*.log
 tags
 *.tmp
+*.gcov
