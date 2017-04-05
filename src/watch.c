@@ -56,6 +56,9 @@ int run_watcher(Watcher w) {
   ASSERT(close(fd));
 
   ASSERT(wait(&stat));
+  if (WIFSIGNALED(stat) && WTERMSIG(stat) == SIGUSR1) {
+    return -1;
+  }
   if (WIFEXITED(stat)) {
     w->last_status = WEXITSTATUS(stat);
   }

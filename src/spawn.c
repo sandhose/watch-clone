@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
 
 #include "spawn.h"
 #include "util.h"
@@ -20,8 +21,7 @@ int spawn(char * const command[]) {
     ASSERT(close(fildes[1]));
     execvp(command[0], command);
     perror("execvp");
-    ASSERT(close(1));
-    exit(EXIT_FAILURE);
+    raise(SIGUSR1);
   }
 
   ASSERT(close(fildes[1]));
