@@ -3,11 +3,12 @@
 #include <string.h>
 
 #include "buffer.h"
+#include "util.h"
 
 Buffer create_buffer() {
   Buffer b = malloc(sizeof(struct s_buffer));
+  if (b == NULL) return NULL;
   b->size = 0;
-  b->content = malloc(BUF_SIZE);
   b->next = NULL;
   return b;
 }
@@ -16,7 +17,6 @@ void free_buffer(Buffer buffer) {
   if (!buffer) return;
   if (buffer->next)
     free_buffer(buffer->next);
-  free(buffer->content);
   free(buffer);
 }
 
@@ -28,14 +28,15 @@ int compare_buffers(Buffer a, Buffer b) {
   else return 0;
 }
 
-void print_buffer(Buffer b) {
-  if (b == NULL) return;
-  write(1, b->content, b->size);
-  print_buffer(b->next);
+int print_buffer(Buffer b) {
+  if (b == NULL) return 0;
+  ASSERT(write(1, b->content, b->size));
+  return print_buffer(b->next);
 }
 
 Buffer read_to_buffer(int fd) {
   Buffer b = create_buffer();
+  if (b == NULL) return NULL;
   b->size = read(fd, b->content, BUF_SIZE);
 
   if (b->size == 0) {

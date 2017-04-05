@@ -1,21 +1,29 @@
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "spawn.h"
+#include "util.h"
 
 int spawn(char * const command[]) {
   int fildes[2];
   pid_t pid;
 
-  pipe(fildes);
-  pid = fork();
+  ASSERT(pipe(fildes));
+  ASSERT(pid = fork());
 
   if (pid == 0) {
-    close(0);
-    close(fildes[0]);
-    dup2(fildes[1], 1);
+    ASSERT(close(0));
+    ASSERT(close(1));
+    ASSERT(close(fildes[0]));
+    ASSERT(dup2(fildes[1], 1));
+    ASSERT(close(fildes[1]));
     execvp(command[0], command);
+    perror("execvp");
+    ASSERT(close(1));
+    exit(EXIT_FAILURE);
   }
 
-  close(fildes[1]);
+  ASSERT(close(fildes[1]));
   return fildes[0];
 }

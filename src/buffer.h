@@ -5,7 +5,7 @@
 
 typedef struct s_buffer {
   int size;
-  char * content;
+  char content[BUF_SIZE];
   struct s_buffer * next;
 } * Buffer;
 
@@ -13,11 +13,10 @@ Buffer create_buffer();
 
 void free_buffer(Buffer);
 
-void print_buffer(Buffer);
+int print_buffer(Buffer);
 
 int compare_buffers(Buffer a, Buffer b);
 
 Buffer read_to_buffer(int fd);
-
 
 #endif

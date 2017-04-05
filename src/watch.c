@@ -12,7 +12,8 @@
 
 Watcher create_watcher(char * command[]) {
   Watcher w = malloc(sizeof(struct s_watcher));
-  w->last_output = create_buffer();
+  if (w == NULL) return NULL;
+  w->last_output = NULL;
   w->last_status = 0;
   w->run_count = 0;
   w->command = command;
@@ -25,8 +26,10 @@ void free_watcher(Watcher w) {
 }
 
 int run_watcher(Watcher w) {
-  int fd = spawn(w->command);
+  int fd;
   int stat;
+
+  ASSERT(fd = spawn(w->command));
 
   Buffer * next_ptr = &w->last_output;
   Buffer bytes_read;
@@ -50,9 +53,9 @@ int run_watcher(Watcher w) {
     next_ptr = &(*next_ptr)->next;
   }
 
-  close(fd);
+  ASSERT(close(fd));
 
-  wait(&stat);
+  ASSERT(wait(&stat));
   if (WIFEXITED(stat)) {
     w->last_status = WEXITSTATUS(stat);
   }
@@ -64,11 +67,13 @@ int run_watcher(Watcher w) {
 
 int run_loop(Watcher w, char* format, int interval, int limit, int check_status) {
   int prev_status = -1;
+  int changed = 0;
   while(limit == 0 || w->run_count < limit){
     if(format)
-      print_time(format);
+      ASSERT(print_time(format));
 
-    if(run_watcher(w))
+    ASSERT(changed = run_watcher(w));
+    if (changed)
       print_buffer(w->last_output);
 
     if(check_status && prev_status != w->last_status) {
@@ -78,7 +83,7 @@ int run_loop(Watcher w, char* format, int interval, int limit, int check_status)
 
     prev_status = w->last_status;
 
-    usleep(interval * 1000);
+    ASSERT(usleep(interval * 1000));
   }
   return 0;
 }
