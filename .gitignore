@@ -5,3 +5,4 @@ test-*.log
 tags
 *.tmp
 *.gcov
+detecter-*.tar.gz

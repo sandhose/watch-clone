@@ -76,7 +76,7 @@ int run_watcher(Watcher w) {
       free_buffer(bytes_read);
     }
 
-    next_ptr = &(*next_ptr)->next;
+    next_ptr = &((*next_ptr)->next);
   }
 
   ASSERT(close(fd));

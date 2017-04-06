@@ -18,16 +18,22 @@
 # test-avec-valgrind	: lance les tests avec valgrind (conseillé)
 # couverture-et-tests	: automatise les tests avec rapport de couverture
 #
+NAME    = detecter
 
-COV = -coverage
+ARCHIVE = $(NAME)-snapshot
 
-CFLAGS = -Wall -Wextra -Werror -g $(COVERAGE)
+COV     = -coverage
 
-PROGS	= detecter
+CFLAGS  = -Wall -Wextra -Werror -g $(COVERAGE)
 
-all: ctags $(PROGS)
+PROGS   = $(NAME)
 
-detecter: bin/main
+SOURCES = src/buffer.c src/buffer.h src/main.c src/spawn.c src/spawn.h src/util.c src/util.h src/watch.c src/watch.h
+TESTS   = test/test-100.sh test/test-110.sh test/test-120.sh test/test-130.sh test/test-140.sh test/test-160.sh
+
+all: ctags $(PROGS) $(ARCHIVE).tar.gz
+
+$(NAME): bin/$(NAME)
 	ln -sf $< $@
 
 src/buffer.c: src/buffer.h
@@ -40,7 +46,7 @@ obj/%.o: src/%.c
 	@mkdir -p obj
 	$(CC) $(CFLAGS) -c $< -o $@
 
-bin/main: obj/main.o obj/watch.o obj/util.o obj/spawn.o obj/buffer.o
+bin/$(NAME): obj/main.o obj/watch.o obj/util.o obj/spawn.o obj/buffer.o
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $^ -o $@
 
@@ -50,6 +56,11 @@ coverage: clean
 gcov:
 	gcov -o obj/ src/*.c
 
+$(ARCHIVE).tar.gz: $(SOURCES) $(TESTS) Makefile
+	ln -s . $(ARCHIVE)
+	tar -czvf $@ $(^:%=$(ARCHIVE)/%)
+	rm $(ARCHIVE)
+
 # Par défaut, "test" lance les tests sans valgrind.
 # Si on souhaite utiliser valgrind (conseillé), positionner la
 # variable VALGRIND ou utiliser la cible "test-avec-valgrind"
@@ -57,10 +68,10 @@ gcov:
 test:	test-sans-valgrind
 
 test-sans-valgrind: all
-	@for i in test/test-*.sh ; do echo $$i ; sh $$i || exit 1 ; done
+	@for i in $(TESTS) ; do echo $$i ; sh $$i || exit 1 ; done
 
 test-avec-valgrind: all
-	VALGRIND="valgrind -q" ; export VALGRIND ; for i in test/test-*.sh ; do echo $$i ; sh $$i || exit 1 ; done
+	VALGRIND="valgrind -q" ; export VALGRIND ; for i in $(TESTS) ; do echo $$i ; sh $$i || exit 1 ; done
 
 couverture-et-tests: clean coverage test gcov
 
@@ -69,6 +80,8 @@ ctags:
 
 clean:
 	rm -f $(PROGS)
-	rm -f obj/*
+	rm -f obj/* bin/*
 	rm -f *.log *.tmp
 	rm -f tags core
+	rm -f *.gcov
+	rm -f $(ARCHIVE).tar.gz
