@@ -20,8 +20,9 @@ int spawn(char * const command[]) {
     ASSERT(dup2(fildes[1], 1));
     ASSERT(close(fildes[1]));
     execvp(command[0], command);
-    perror("execvp");
-    raise(SIGUSR1);
+    perror("spawn");
+    kill(getppid(), SIGUSR1);
+    exit(EXIT_FAILURE);
   }
 
   ASSERT(close(fildes[1]));

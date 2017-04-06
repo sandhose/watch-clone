@@ -4,11 +4,35 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdio.h>
+#include <signal.h>
 
 #include "buffer.h"
 #include "watch.h"
 #include "spawn.h"
 #include "util.h"
+
+static struct sigaction old_action;
+static Watcher installed_watcher = NULL;
+
+void sigusr_handler(int signum) {
+  if (signum != SIGUSR1) return;
+  if (installed_watcher == NULL) return;
+  installed_watcher->exec_failure = 1;
+}
+
+void install_signal(Watcher w) {
+  struct sigaction s;
+  s.sa_handler = sigusr_handler;
+  sigemptyset(&s.sa_mask);
+  s.sa_flags = 0;
+  sigaction(SIGUSR1, &s, &old_action);
+  installed_watcher = w;
+}
+
+void restore_signal(void) {
+  installed_watcher = NULL;
+  sigaction(SIGUSR1, &old_action, NULL);
+}
 
 Watcher create_watcher(char * command[]) {
   Watcher w = malloc(sizeof(struct s_watcher));
@@ -29,6 +53,8 @@ int run_watcher(Watcher w) {
   int fd;
   int stat;
 
+  install_signal(w);
+  w->exec_failure = 0;
   ASSERT(fd = spawn(w->command));
 
   Buffer * next_ptr = &w->last_output;
@@ -56,11 +82,14 @@ int run_watcher(Watcher w) {
   ASSERT(close(fd));
 
   ASSERT(wait(&stat));
-  if (WIFSIGNALED(stat) && WTERMSIG(stat) == SIGUSR1) {
-    return -1;
-  }
   if (WIFEXITED(stat)) {
     w->last_status = WEXITSTATUS(stat);
+  }
+
+  restore_signal();
+
+  if (w->exec_failure) {
+    return -1;
   }
 
   w->run_count++;
