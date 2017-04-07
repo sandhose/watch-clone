@@ -28,8 +28,11 @@ CFLAGS  = -Wall -Wextra -Werror -g $(COVERAGE)
 
 PROGS   = $(NAME)
 
-SOURCES = src/buffer.c src/buffer.h src/main.c src/spawn.c src/spawn.h src/util.c src/util.h src/watch.c src/watch.h
+SOURCES = src/buffer.c src/main.c src/spawn.c src/util.c src/watch.c
+HEADERS = src/buffer.h src/spawn.h src/util.h src/watch.h
 TESTS   = test/test-100.sh test/test-110.sh test/test-120.sh test/test-130.sh test/test-140.sh test/test-160.sh
+
+OBJECTS = $(SOURCES:src/%.c=obj/%.o)
 
 all: ctags $(PROGS) $(ARCHIVE).tar.gz
 
@@ -46,7 +49,7 @@ obj/%.o: src/%.c
 	@mkdir -p obj
 	$(CC) $(CFLAGS) -c $< -o $@
 
-bin/$(NAME): obj/main.o obj/watch.o obj/util.o obj/spawn.o obj/buffer.o
+bin/$(NAME): $(OBJECTS)
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $^ -o $@
 
@@ -56,7 +59,7 @@ coverage: clean
 gcov:
 	gcov -o obj/ src/*.c
 
-$(ARCHIVE).tar.gz: $(SOURCES) $(TESTS) Makefile
+$(ARCHIVE).tar.gz: $(SOURCES) $(HEADERS) $(TESTS) Makefile
 	ln -s . $(ARCHIVE)
 	tar -czvf $@ $(^:%=$(ARCHIVE)/%)
 	rm $(ARCHIVE)
