@@ -44,9 +44,12 @@ int print_buffer(Buffer b) {
 
 Buffer read_to_buffer(int fd) {
   Buffer b = create_buffer();
+  int bread = 0;
   if (b == NULL)
     return NULL;
-  b->size = read(fd, b->content, BUF_SIZE);
+
+  while (b->size < BUF_SIZE && (bread = read(fd, b->content + b->size, BUF_SIZE)) > 0)
+    b->size += bread;
 
   if (b->size == 0) {
     free_buffer(b);

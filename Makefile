@@ -18,23 +18,21 @@
 # test-avec-valgrind	: lance les tests avec valgrind (conseillé)
 # couverture-et-tests	: automatise les tests avec rapport de couverture
 #
-NAME	= detecter
-
-ARCHIVE	= $(NAME)-snapshot
-
-COV	= -coverage
-
 CC	= clang
-
 RM	= rm -f
-
+COV	= -coverage
 CFLAGS	= -Wall -Wextra -Werror -g $(COVERAGE)
 
+NAME	= detecter
 PROGS	= $(NAME)
+
+ARCHIVE	= $(NAME)-snapshot
+FILES   = $(SOURCES) $(HEADERS) $(TESTS) test/test-150-script.c Makefile
 
 SOURCES	= src/buffer.c src/main.c src/spawn.c src/util.c src/watch.c
 HEADERS	= src/buffer.h src/spawn.h src/util.h src/watch.h
-TESTS	= test/test-100.sh test/test-110.sh test/test-120.sh test/test-130.sh test/test-140.sh test/test-160.sh
+
+TESTS	= test/test-100.sh test/test-110.sh test/test-120.sh test/test-130.sh test/test-140.sh test/test-150.sh test/test-160.sh
 
 OBJECTS	= $(SOURCES:src/%.c=obj/%.o)
 
@@ -66,7 +64,7 @@ coverage: clean
 gcov:
 	gcov -o obj/ src/*.c
 
-$(ARCHIVE).tar.gz: $(SOURCES) $(HEADERS) $(TESTS) Makefile
+$(ARCHIVE).tar.gz: $(FILES)
 	ln -s . $(ARCHIVE)
 	tar -czvf $@ $(^:%=$(ARCHIVE)/%)
 	$(RM) $(ARCHIVE)
@@ -85,6 +83,13 @@ test-avec-valgrind:
 test-%.log: test/test-%.sh $(NAME)
 	sh $<
 
+# Additional binary needed for a test
+bin/test-150-script: test/test-150-script.c
+	@mkdir -p bin
+	$(CC) $(CFLAGS) $^ -o $@
+
+test/test-150.sh: bin/test-150-script
+
 .PHONY: couverture-et-tests
 couverture-et-tests: clean coverage test gcov
 
@@ -97,9 +102,10 @@ tags: $(SOURCES) $(HEADERS)
 indent: $(SOURCES) $(HEADERS)
 	indent $^
 
+.PHONY: clean
 clean:
 	$(RM) $(PROGS)
-	$(RM) obj/* bin/*
+	$(RM) -r obj/* bin/*
 	$(RM) *.log *.tmp
 	$(RM) tags core
 	$(RM) *.gcov
