@@ -12,9 +12,11 @@ void usage(char prog_name[]) {
           "\n %s [-t format] [-i interval] [-l limit] [-c] command [args...]"
           "\n"
           "\nOptions:"
-          "\n  -t format	TODO"
-          "\n  -i interval	TODO"
-          "\n  -l limit	TODO" "\n  -c		TODO" "\n", prog_name);
+          "\n  -t format	if set, display the time using the given format before each run"
+          "\n  -i interval	milliseconds to wait between updates"
+          "\n  -l limit	maximum numbers of runs (0 means unlimitted)"
+          "\n  -c		also check for exit status code changes"
+          "\n\n  -h		display this help and exit\n", prog_name);
 }
 
 int main(int argc, char *argv[]) {

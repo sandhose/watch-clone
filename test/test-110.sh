@@ -27,4 +27,6 @@ fail ()
 
 ./detecter -w					&& fail "syntaxe invalide"
 
+./detecter -i1 -l10 true			|| fail "commande sans output"
+
 exit 0

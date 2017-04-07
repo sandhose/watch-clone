@@ -68,7 +68,8 @@ int run_watcher(Watcher w) {
   if (w->run_count == 0)
     diff = 1;
 
-  while ((bytes_read = read_to_buffer(fd)) != NULL) {
+  do {
+    bytes_read = read_to_buffer(fd);
     if (!diff && !compare_buffers(bytes_read, *next_ptr)) {
       diff = 1;
     }
@@ -81,8 +82,9 @@ int run_watcher(Watcher w) {
       free_buffer(bytes_read);
     }
 
-    next_ptr = &((*next_ptr)->next);
-  }
+    if (*next_ptr)
+      next_ptr = &((*next_ptr)->next);
+  } while (bytes_read != NULL);
 
   ASSERT(close(fd));
 
@@ -93,9 +95,8 @@ int run_watcher(Watcher w) {
 
   restore_signal();
 
-  if (w->exec_failure) {
+  if (w->exec_failure)
     return -1;
-  }
 
   w->run_count++;
 
