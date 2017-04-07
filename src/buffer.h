@@ -6,8 +6,8 @@
 typedef struct s_buffer {
   int size;
   char content[BUF_SIZE];
-  struct s_buffer * next;
-} * Buffer;
+  struct s_buffer *next;
+} *Buffer;
 
 Buffer create_buffer();
 

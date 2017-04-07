@@ -18,22 +18,27 @@
 # test-avec-valgrind	: lance les tests avec valgrind (conseillé)
 # couverture-et-tests	: automatise les tests avec rapport de couverture
 #
-NAME    = detecter
+NAME	= detecter
 
-ARCHIVE = $(NAME)-snapshot
+ARCHIVE	= $(NAME)-snapshot
 
-COV     = -coverage
+COV	= -coverage
 
-CFLAGS  = -Wall -Wextra -Werror -g $(COVERAGE)
+CC	= clang
 
-PROGS   = $(NAME)
+RM	= rm -f
 
-SOURCES = src/buffer.c src/main.c src/spawn.c src/util.c src/watch.c
-HEADERS = src/buffer.h src/spawn.h src/util.h src/watch.h
-TESTS   = test/test-100.sh test/test-110.sh test/test-120.sh test/test-130.sh test/test-140.sh test/test-160.sh
+CFLAGS	= -Wall -Wextra -Werror -g $(COVERAGE)
 
-OBJECTS = $(SOURCES:src/%.c=obj/%.o)
+PROGS	= $(NAME)
 
+SOURCES	= src/buffer.c src/main.c src/spawn.c src/util.c src/watch.c
+HEADERS	= src/buffer.h src/spawn.h src/util.h src/watch.h
+TESTS	= test/test-100.sh test/test-110.sh test/test-120.sh test/test-130.sh test/test-140.sh test/test-160.sh
+
+OBJECTS	= $(SOURCES:src/%.c=obj/%.o)
+
+.PHONY: all
 all: ctags $(PROGS) $(ARCHIVE).tar.gz
 
 $(NAME): bin/$(NAME)
@@ -53,38 +58,50 @@ bin/$(NAME): $(OBJECTS)
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $^ -o $@
 
+.PHONY: coverage
 coverage: clean
 	$(MAKE) COVERAGE=$(COV)
 
+.PHONY: gcov
 gcov:
 	gcov -o obj/ src/*.c
 
 $(ARCHIVE).tar.gz: $(SOURCES) $(HEADERS) $(TESTS) Makefile
 	ln -s . $(ARCHIVE)
 	tar -czvf $@ $(^:%=$(ARCHIVE)/%)
-	rm $(ARCHIVE)
+	$(RM) $(ARCHIVE)
 
 # Par défaut, "test" lance les tests sans valgrind.
 # Si on souhaite utiliser valgrind (conseillé), positionner la
 # variable VALGRIND ou utiliser la cible "test-avec-valgrind"
 
+.PHONY: test
 test:	test-sans-valgrind
 
+.PHONY: test-sans-valgrind
 test-sans-valgrind: all
 	@for i in $(TESTS) ; do echo $$i ; sh $$i || exit 1 ; done
 
+.PHONY: test-avec-valgrind
 test-avec-valgrind: all
 	VALGRIND="valgrind -q" ; export VALGRIND ; for i in $(TESTS) ; do echo $$i ; sh $$i || exit 1 ; done
 
+.PHONY: couverture-et-tests
 couverture-et-tests: clean coverage test gcov
 
-ctags:
-	ctags src/*.[ch]
+.PHONY: ctags
+ctags: tags
+tags: $(SOURCES) $(HEADERS)
+	ctags $^
+
+.PHONY: indent
+indent: $(SOURCES) $(HEADERS)
+	indent $^
 
 clean:
-	rm -f $(PROGS)
-	rm -f obj/* bin/*
-	rm -f *.log *.tmp
-	rm -f tags core
-	rm -f *.gcov
-	rm -f $(ARCHIVE).tar.gz
+	$(RM) $(PROGS)
+	$(RM) obj/* bin/*
+	$(RM) *.log *.tmp
+	$(RM) tags core
+	$(RM) *.gcov
+	$(RM) $(ARCHIVE).tar.gz

@@ -15,8 +15,10 @@ static struct sigaction old_action;
 static Watcher installed_watcher = NULL;
 
 void sigusr_handler(int signum) {
-  if (signum != SIGUSR1) return;
-  if (installed_watcher == NULL) return;
+  if (signum != SIGUSR1)
+    return;
+  if (installed_watcher == NULL)
+    return;
   installed_watcher->exec_failure = 1;
 }
 
@@ -34,9 +36,10 @@ void restore_signal(void) {
   sigaction(SIGUSR1, &old_action, NULL);
 }
 
-Watcher create_watcher(char * command[]) {
-  Watcher w = malloc(sizeof(struct s_watcher));
-  if (w == NULL) return NULL;
+Watcher create_watcher(char *command[]) {
+  Watcher w = malloc(sizeof (struct s_watcher));
+  if (w == NULL)
+    return NULL;
   w->last_output = NULL;
   w->last_status = 0;
   w->run_count = 0;
@@ -57,14 +60,15 @@ int run_watcher(Watcher w) {
   w->exec_failure = 0;
   ASSERT(fd = spawn(w->command));
 
-  Buffer * next_ptr = &w->last_output;
+  Buffer *next_ptr = &w->last_output;
   Buffer bytes_read;
 
   int diff = 0;
 
-  if (w->run_count == 0) diff = 1;
+  if (w->run_count == 0)
+    diff = 1;
 
-  while((bytes_read = read_to_buffer(fd)) != NULL) {
+  while ((bytes_read = read_to_buffer(fd)) != NULL) {
     if (!diff && !compare_buffers(bytes_read, *next_ptr)) {
       diff = 1;
     }
@@ -72,7 +76,8 @@ int run_watcher(Watcher w) {
     if (diff) {
       free_buffer(*next_ptr);
       *next_ptr = bytes_read;
-    } else {
+    }
+    else {
       free_buffer(bytes_read);
     }
 
@@ -97,20 +102,19 @@ int run_watcher(Watcher w) {
   return diff;
 }
 
-int run_loop(Watcher w, char* format, int interval, int limit, int check_status) {
+int run_loop(Watcher w, char *format, int interval, int limit, int check_status) {
   int prev_status = -1;
   int changed = 0;
-  while(limit == 0 || w->run_count < limit){
-    if(format)
+  while (limit == 0 || w->run_count < limit) {
+    if (format)
       ASSERT(print_time(format));
 
     ASSERT(changed = run_watcher(w));
     if (changed)
       print_buffer(w->last_output);
 
-    if(check_status && prev_status != w->last_status) {
-      printf("exit %d\n", w->last_status);
-      fflush(stdout);
+    if (check_status && prev_status != w->last_status) {
+      dprintf(1, "exit %d\n", w->last_status);
     }
 
     prev_status = w->last_status;

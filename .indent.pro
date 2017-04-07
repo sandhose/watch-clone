@@ -1,0 +1,21 @@
+--blank-lines-after-procedures
+--blank-lines-before-block-comments
+--break-before-boolean-operator
+--dont-break-procedure-type
+--braces-on-if-line
+--braces-on-func-def-line
+--brace-indent 0
+--blank-before-sizeof
+--comment-indentation 40
+--case-brace-indentation 4
+--case-indentation 2
+--indent-level 2
+--line-length 80
+--dont-cuddle-else
+--no-space-after-parentheses
+--no-space-after-function-call-names
+--space-after-for
+--space-after-if
+--space-after-while
+--struct-brace-indentation 0
+--no-tabs

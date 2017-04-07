@@ -6,7 +6,7 @@
 #include "spawn.h"
 #include "util.h"
 
-int spawn(char * const command[]) {
+int spawn(char *const command[]) {
   int fildes[2];
   pid_t pid;
 
