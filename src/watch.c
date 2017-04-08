@@ -15,11 +15,8 @@ static struct sigaction old_action;
 static Watcher installed_watcher = NULL;
 
 void sigusr_handler(int signum) {
-  if (signum != SIGUSR1)
-    return;
-  if (installed_watcher == NULL)
-    return;
-  installed_watcher->exec_failure = 1;
+  if (signum == SIGUSR1 && installed_watcher != NULL)
+    installed_watcher->exec_failure = 1;
 }
 
 void install_signal(Watcher w) {
@@ -37,12 +34,12 @@ void restore_signal(void) {
 }
 
 Watcher create_watcher(char *command[]) {
-  Watcher w = malloc(sizeof (struct s_watcher));
-  if (w == NULL)
-    return NULL;
+  Watcher w;
+  TRY_ALLOC(w = malloc(sizeof (struct s_watcher)));
   w->last_output = NULL;
   w->last_status = 0;
   w->run_count = 0;
+  w->exec_failure = 0;
   w->command = command;
   return w;
 }

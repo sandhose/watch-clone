@@ -6,9 +6,8 @@
 #include "util.h"
 
 Buffer create_buffer() {
-  Buffer b = malloc(sizeof (struct s_buffer));
-  if (b == NULL)
-    return NULL;
+  Buffer b;
+  TRY_ALLOC(b = malloc(sizeof (struct s_buffer)));
   b->size = 0;
   b->next = NULL;
   return b;
@@ -43,10 +42,9 @@ int print_buffer(Buffer b) {
 }
 
 Buffer read_to_buffer(int fd) {
-  Buffer b = create_buffer();
+  Buffer b;
+  TRY_ALLOC(b = create_buffer());
   int bread = 0;
-  if (b == NULL)
-    return NULL;
 
   while (b->size < BUF_SIZE
          && (bread = read(fd, b->content + b->size, BUF_SIZE)) > 0)
