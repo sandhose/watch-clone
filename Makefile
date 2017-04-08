@@ -21,7 +21,7 @@
 CC	= clang
 RM	= rm -f
 COV	= -coverage
-CFLAGS	= -Wall -Wextra -Werror -g $(COVERAGE)
+CFLAGS	= -Wall -Wextra -Werror -pedantic -std=c99 -g $(COVERAGE)
 
 NAME	= detecter
 PROGS	= $(NAME)
