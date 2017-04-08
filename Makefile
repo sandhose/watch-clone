@@ -26,8 +26,11 @@ CFLAGS	= -Wall -Wextra -Werror -pedantic -std=gnu99 -g $(COVERAGE)
 NAME	= detecter
 PROGS	= $(NAME)
 
+README  = README.md
+RAPPORT = rapport.pdf
+
 ARCHIVE	= $(NAME)-gliech-greget
-FILES   = $(SOURCES) $(HEADERS) $(TESTS) src/test-150-script.c Makefile
+FILES   = $(SOURCES) $(HEADERS) $(TESTS) $(RAPPORT) $(README) src/test-150-script.c Makefile .indent.pro
 
 SOURCES	= src/buffer.c src/main.c src/spawn.c src/util.c src/watch.c
 HEADERS	= src/buffer.h src/spawn.h src/util.h src/watch.h
@@ -66,6 +69,9 @@ coverage: clean
 .PHONY: gcov
 gcov:
 	gcov -o obj/ src/*.c
+
+$(RAPPORT): $(README)
+	pandoc --latex-engine=xelatex $< -o $@
 
 $(ARCHIVE).tar.gz: $(FILES)
 	ln -s . $(ARCHIVE)

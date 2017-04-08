@@ -50,7 +50,7 @@ Buffer read_to_buffer(const int fd) {
          && (bread = read(fd, b->content + b->size, BUF_SIZE)) > 0)
     b->size += bread;
 
-  if (b->size == 0) {
+  if (b->size == 0 || bread == -1) {
     free_buffer(b);
     return NULL;
   }

@@ -45,13 +45,13 @@ int main(int argc, char *argv[]) {
       case 'i':
         if ((opt_interval = atoi(optarg)) <= 0) {
           usage(prog_name);
-          return 1;
+          return EXIT_FAILURE;
         }
         break;
       case 'l':
         if ((opt_limit = atoi(optarg)) <= 0) {
           usage(prog_name);
-          return 1;
+          return EXIT_FAILURE;
         }
         break;
       case 'c':
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
       case 'h':
       default:
         usage(prog_name);
-        return 1;
+        return EXIT_FAILURE;
     }
   }
 
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
   if (argc == 0) {
     usage(prog_name);
-    return 1;
+    return EXIT_FAILURE;
   }
 
   // Instanciate the watcher, and run it.
