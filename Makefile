@@ -18,10 +18,10 @@
 # test-avec-valgrind	: lance les tests avec valgrind (conseillé)
 # couverture-et-tests	: automatise les tests avec rapport de couverture
 #
-CC	= clang
+CC	= gcc
 RM	= rm -f
 COV	= -coverage
-CFLAGS	= -Wall -Wextra -Werror -pedantic -std=c99 -g $(COVERAGE)
+CFLAGS	= -Wall -Wextra -Werror -pedantic -std=gnu99 -g $(COVERAGE)
 
 NAME	= detecter
 PROGS	= $(NAME)

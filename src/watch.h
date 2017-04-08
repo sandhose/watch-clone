@@ -23,7 +23,7 @@ Watcher create_watcher(char *command[]);
  * @brief Run a watcher once, and checks for change
  *
  * @param[in,out] w The watcher to run.
- * @return 1 if something changed, 0 if not. -1 if something failed, -2 if the command failed to run.
+ * @return 1 if something changed, 0 if not. -1 if something failed
  */
 int run_watcher(Watcher w);
 
