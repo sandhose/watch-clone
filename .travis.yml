@@ -1,0 +1,13 @@
+language: c
+
+env:
+  global:
+    - CODECOV_TOKEN=5467edbf-8389-4531-bb62-431d6351644e
+
+script:
+  - make coverage
+  - make test
+  - make gcov
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
