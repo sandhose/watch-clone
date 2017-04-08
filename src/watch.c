@@ -62,7 +62,7 @@ int run_watcher(Watcher w) {
 
   int diff = 0;
 
-  if (w->run_count == 0)
+  if (w->run_count == 0 || w->exec_failure)
     diff = 1;
 
   do {
@@ -92,9 +92,6 @@ int run_watcher(Watcher w) {
 
   restore_signal();
 
-  if (w->exec_failure)
-    return -1;
-
   w->run_count++;
 
   return diff;
@@ -108,16 +105,22 @@ int run_loop(Watcher w, char *format, int interval, int limit, int check_status)
       TRY(print_time(format));
 
     TRY(changed = run_watcher(w));
-    if (changed)
-      print_buffer(w->last_output);
 
-    if (check_status && prev_status != w->last_status) {
-      dprintf(1, "exit %d\n", w->last_status);
+    // Do not display anything if the command failed to run
+    // The child is already displaying an error on stderr
+    if (!w->exec_failure) {
+      if (changed)
+        print_buffer(w->last_output);
+
+      if (check_status && prev_status != w->last_status) {
+        dprintf(1, "exit %d\n", w->last_status);
+      }
+
+      prev_status = w->last_status;
     }
-
-    prev_status = w->last_status;
 
     TRY(usleep(interval * 1000));
   }
-  return 0;
+
+  return 1;
 }

@@ -29,4 +29,7 @@ fail ()
 
 ./detecter -i1 -l10 true			|| fail "commande sans output"
 
+ulimit -n 4
+./detecter -i1 -l10 echo test                   && fail "erreur primitive système"
+
 exit 0

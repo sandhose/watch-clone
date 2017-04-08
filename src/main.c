@@ -6,6 +6,11 @@
 #include "util.h"
 #include "watch.h"
 
+/**
+ * @brief Print usage to stderr
+ *
+ * @param prog_name Should be argv[0].
+ */
 void usage(char prog_name[]) {
   dprintf(2,
           "Usage: "
@@ -20,13 +25,16 @@ void usage(char prog_name[]) {
 }
 
 int main(int argc, char *argv[]) {
+  // Keep this for printing the usage
   char *prog_name = argv[0];
 
+  // The options that will be set
   char *opt_format = NULL;
   int opt_interval = 10000;
   int opt_limit = 0;
   int opt_flag_check_status = 0;
 
+  // Arguments parsing loop using getopt
   char ch;
   while ((ch = getopt(argc, argv, "+t:i:l:c")) != -1) {
     switch (ch) {
@@ -63,12 +71,17 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
+  // Instanciate the watcher, and run it.
   Watcher w = create_watcher(argv);
+
   if (run_loop(w, opt_format, opt_interval,
                opt_limit, opt_flag_check_status) == -1) {
+    // Something failed, show the error
     perror(geterr());
+    return EXIT_FAILURE;
   }
+
   free_watcher(w);
 
-  return 0;
+  return EXIT_SUCCESS;
 }

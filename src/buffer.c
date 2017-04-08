@@ -5,7 +5,7 @@
 #include "buffer.h"
 #include "util.h"
 
-Buffer create_buffer() {
+Buffer create_buffer(void) {
   Buffer b;
   TRY_ALLOC(b = malloc(sizeof (struct s_buffer)));
   b->size = 0;
@@ -21,7 +21,7 @@ void free_buffer(Buffer buffer) {
   free(buffer);
 }
 
-int compare_buffers(Buffer a, Buffer b) {
+int compare_buffers(const Buffer a, const Buffer b) {
   if (a == b)
     return 1;
   else if (a == NULL || b == NULL)
@@ -34,14 +34,14 @@ int compare_buffers(Buffer a, Buffer b) {
     return 0;
 }
 
-int print_buffer(Buffer b) {
+int print_buffer(const Buffer b) {
   if (b == NULL)
     return 0;
   TRY(write(1, b->content, b->size));
   return print_buffer(b->next);
 }
 
-Buffer read_to_buffer(int fd) {
+Buffer read_to_buffer(const int fd) {
   Buffer b;
   TRY_ALLOC(b = create_buffer());
   int bread = 0;
