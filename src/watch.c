@@ -58,7 +58,7 @@ int run_watcher(Watcher w) {
 
   install_signal(w);
   w->exec_failure = 0;
-  ASSERT(fd = spawn(w->command));
+  TRY(fd = spawn(w->command));
 
   Buffer *next_ptr = &w->last_output;
   Buffer bytes_read;
@@ -86,9 +86,9 @@ int run_watcher(Watcher w) {
       next_ptr = &((*next_ptr)->next);
   } while (bytes_read != NULL);
 
-  ASSERT(close(fd));
+  TRY(close(fd));
 
-  ASSERT(wait(&stat));
+  TRY(wait(&stat));
   if (WIFEXITED(stat)) {
     w->last_status = WEXITSTATUS(stat);
   }
@@ -108,9 +108,9 @@ int run_loop(Watcher w, char *format, int interval, int limit, int check_status)
   int changed = 0;
   while (limit == 0 || w->run_count < limit) {
     if (format)
-      ASSERT(print_time(format));
+      TRY(print_time(format));
 
-    ASSERT(changed = run_watcher(w));
+    TRY(changed = run_watcher(w));
     if (changed)
       print_buffer(w->last_output);
 
@@ -120,7 +120,7 @@ int run_loop(Watcher w, char *format, int interval, int limit, int check_status)
 
     prev_status = w->last_status;
 
-    ASSERT(usleep(interval * 1000));
+    TRY(usleep(interval * 1000));
   }
   return 0;
 }

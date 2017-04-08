@@ -26,8 +26,8 @@ CFLAGS	= -Wall -Wextra -Werror -g $(COVERAGE)
 NAME	= detecter
 PROGS	= $(NAME)
 
-ARCHIVE	= $(NAME)-snapshot
-FILES   = $(SOURCES) $(HEADERS) $(TESTS) test/test-150-script.c Makefile
+ARCHIVE	= $(NAME)-gliech-greget
+FILES   = $(SOURCES) $(HEADERS) $(TESTS) src/test-150-script.c Makefile
 
 SOURCES	= src/buffer.c src/main.c src/spawn.c src/util.c src/watch.c
 HEADERS	= src/buffer.h src/spawn.h src/util.h src/watch.h
@@ -39,20 +39,23 @@ OBJECTS	= $(SOURCES:src/%.c=obj/%.o)
 .PHONY: all
 all: ctags $(PROGS) $(ARCHIVE).tar.gz
 
-$(NAME): bin/$(NAME)
+$(NAME): bin/main
 	ln -sf $< $@
 
-src/buffer.c: src/buffer.h
-src/main.c: src/watch.h src/util.h src/buffer.h
-src/spawn.c: src/spawn.h
-src/util.c: src/util.h
-src/watch.c: src/watch.h src/spawn.h
+# Generated with `gcc -MM src/*.c`
+obj/buffer.o: src/buffer.c src/buffer.h src/util.h
+obj/main.o: src/main.c src/buffer.h src/util.h src/watch.h
+obj/spawn.o: src/spawn.c src/spawn.h src/util.h
+obj/util.o: src/util.c src/util.h
+obj/watch.o: src/watch.c src/buffer.h src/watch.h src/spawn.h src/util.h
 
 obj/%.o: src/%.c
 	@mkdir -p obj
 	$(CC) $(CFLAGS) -c $< -o $@
 
-bin/$(NAME): $(OBJECTS)
+bin/main: $(OBJECTS)
+
+bin/%: obj/%.o
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $^ -o $@
 
@@ -82,11 +85,6 @@ test-avec-valgrind:
 
 test-%.log: test/test-%.sh $(NAME)
 	sh $<
-
-# Additional binary needed for a test
-bin/test-150-script: test/test-150-script.c
-	@mkdir -p bin
-	$(CC) $(CFLAGS) $^ -o $@
 
 test/test-150.sh: bin/test-150-script
 

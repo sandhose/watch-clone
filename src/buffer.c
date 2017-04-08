@@ -38,7 +38,7 @@ int compare_buffers(Buffer a, Buffer b) {
 int print_buffer(Buffer b) {
   if (b == NULL)
     return 0;
-  ASSERT(write(1, b->content, b->size));
+  TRY(write(1, b->content, b->size));
   return print_buffer(b->next);
 }
 
@@ -48,7 +48,8 @@ Buffer read_to_buffer(int fd) {
   if (b == NULL)
     return NULL;
 
-  while (b->size < BUF_SIZE && (bread = read(fd, b->content + b->size, BUF_SIZE)) > 0)
+  while (b->size < BUF_SIZE
+         && (bread = read(fd, b->content + b->size, BUF_SIZE)) > 0)
     b->size += bread;
 
   if (b->size == 0) {
