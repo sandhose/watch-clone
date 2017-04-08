@@ -113,7 +113,8 @@ int run_loop(Watcher w, char *format, int interval, int limit, int check_status)
         print_buffer(w->last_output);
 
       if (check_status && prev_status != w->last_status) {
-        dprintf(1, "exit %d\n", w->last_status);
+        printf("exit %d\n", w->last_status);
+        fflush(stdout);
       }
 
       prev_status = w->last_status;

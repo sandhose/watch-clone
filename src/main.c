@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <getopt.h>
 
 #include "buffer.h"
 #include "util.h"
@@ -12,7 +13,7 @@
  * @param prog_name Should be argv[0].
  */
 void usage(char prog_name[]) {
-  dprintf(2,
+  fprintf(stderr,
           "Usage: "
           "\n %s [-t format] [-i interval] [-l limit] [-c] command [args...]"
           "\n"
