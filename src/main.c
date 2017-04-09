@@ -20,7 +20,7 @@ void usage(char prog_name[]) {
           "\nOptions:"
           "\n  -t format	if set, display the time using the given format before each run"
           "\n  -i interval	milliseconds to wait between updates"
-          "\n  -l limit	maximum numbers of runs (0 means unlimitted)"
+          "\n  -l limit	maximum numbers of runs (0 means unlimited)"
           "\n  -c		also check for exit status code changes"
           "\n\n  -h		display this help and exit\n", prog_name);
 }
