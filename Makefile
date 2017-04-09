@@ -28,6 +28,7 @@ PROGS	= $(NAME)
 
 README  = README.md
 RAPPORT = rapport.pdf
+META    = rapport-meta.yml
 
 ARCHIVE	= $(NAME)-gliech-greget
 FILES   = $(SOURCES) $(HEADERS) $(TESTS) $(RAPPORT) $(README) src/test-150-script.c Makefile .indent.pro
@@ -70,8 +71,8 @@ coverage: clean
 gcov:
 	gcov -o obj/ $(SOURCES)
 
-$(RAPPORT): $(README)
-	pandoc --latex-engine=xelatex $< -o $@
+$(RAPPORT): $(META) $(README)
+	pandoc --latex-engine=xelatex $^ -o $@
 
 .PHONY: archive
 archive: clean coverage test gcov $(ARCHIVE).tar.gz

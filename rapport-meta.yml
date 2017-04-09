@@ -1,0 +1,12 @@
+---
+# Those are metadatas used by pandoc for PDF generation
+title: Rapport de projet
+documentclass: article
+lang: fr
+date: 9 avril 2017
+author:
+  - Antoine Greget
+  - Quentin Gliech
+
+urlcolor: cyan
+---
