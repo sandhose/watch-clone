@@ -14,6 +14,7 @@
 static struct sigaction old_action;
 static Watcher installed_watcher = NULL;
 
+// The SIGUSR1 signal is used to report any failure in the child process
 void sigusr_handler(int signum) {
   if (signum == SIGUSR1 && installed_watcher != NULL)
     installed_watcher->exec_failure = 1;
@@ -52,39 +53,47 @@ void free_watcher(Watcher w) {
 int run_watcher(Watcher w) {
   int fd;
   int stat;
+  int diff = 0;
 
+  // This forces to consider the output as different if it is the first run, or
+  // if the previous run failed
+  if (w->run_count == 0 || w->exec_failure)
+    diff = 1;
+
+  // Install the SIGUSR1 signal handler
   install_signal(w);
   w->exec_failure = 0;
   TRY(fd = spawn(w->command));
 
+  // This points where "next buffer" is
   Buffer *next_ptr = &w->last_output;
-  Buffer bytes_read;
+  Buffer read_buffer;
 
-  int diff = 0;
-
-  if (w->run_count == 0 || w->exec_failure)
-    diff = 1;
-
+  // This is a do…while loop to force buffer comparison even if the command
+  // doesn't output anything
   do {
-    bytes_read = read_to_buffer(fd);
-    if (!diff && !compare_buffers(bytes_read, *next_ptr)) {
+    read_buffer = read_to_buffer(fd);
+    // The `!diff &&` is here to avoid comparing the buffers if a difference
+    // was already detected
+    if (!diff && !compare_buffers(read_buffer, *next_ptr)) {
       diff = 1;
     }
 
     if (diff) {
       free_buffer(*next_ptr);
-      *next_ptr = bytes_read;
+      *next_ptr = read_buffer;
     }
     else {
-      free_buffer(bytes_read);
+      free_buffer(read_buffer);
     }
 
     if (*next_ptr)
       next_ptr = &((*next_ptr)->next);
-  } while (bytes_read != NULL);
+  } while (read_buffer != NULL);
 
   TRY(close(fd));
 
+  // Save the last status code
   TRY(wait(&stat));
   if (WIFEXITED(stat)) {
     w->last_status = WEXITSTATUS(stat);
@@ -114,6 +123,7 @@ int run_loop(Watcher w, char *format, int interval, int limit, int check_status)
 
       if (check_status && prev_status != w->last_status) {
         printf("exit %d\n", w->last_status);
+        // This flush is needed to immediately print the exit status
         fflush(stdout);
       }
 
