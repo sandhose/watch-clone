@@ -21,13 +21,13 @@ fail ()
     exit 1
 }
 
-./detecter -i1 -l1 some_invalid_command		|| fail "commande invalide"
+$V ./detecter -i1 -l1 some_invalid_command		|| fail "commande invalide"
 
-./detecter -h					&& fail "syntaxe -h"
+$V ./detecter -h					&& fail "syntaxe -h"
 
-./detecter -w					&& fail "syntaxe invalide"
+$V ./detecter -w					&& fail "syntaxe invalide"
 
-./detecter -i1 -l10 true			|| fail "commande sans output"
+$V ./detecter -i1 -l10 true			|| fail "commande sans output"
 
 (ulimit -n 4; ./detecter -i1 -l10 echo test)	&& fail "erreur primitive système"
 

@@ -47,7 +47,7 @@ Buffer read_to_buffer(const int fd) {
   int bread = 0;
 
   while (b->size < BUF_SIZE
-         && (bread = read(fd, b->content + b->size, BUF_SIZE)) > 0)
+         && (bread = read(fd, b->content + b->size, BUF_SIZE - b->size)) > 0)
     b->size += bread;
 
   if (b->size == 0 || bread == -1) {

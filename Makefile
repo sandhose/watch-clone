@@ -91,7 +91,7 @@ test: $(TESTS:test/test-%.sh=test-%.log)
 
 .PHONY: test-avec-valgrind
 test-avec-valgrind:
-	VALGRIND="valgrind -q" make test
+	VALGRIND="valgrind -q --trace-children=yes" make test
 
 test-%.log: test/test-%.sh $(NAME)
 	sh $<

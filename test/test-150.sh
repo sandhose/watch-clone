@@ -28,6 +28,6 @@ fail ()
 # The output should be the same as one run
 ./bin/test-150-script > f2.tmp
 
-./detecter -i1 -l5 bin/test-150-script > f1.tmp \
+$V ./detecter -i1 -l5 bin/test-150-script > f1.tmp \
 	&& cmp -s f1.tmp f2.tmp 		|| fail "write avec fsync"
 
