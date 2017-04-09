@@ -10,31 +10,31 @@ Aussi, le `Makefile` contient des règles pour générer le PDF du rapport via [
 
 # Structure générale
 
-Le code est structurée sémantiquement en plusieurs fichiers.
-Les fonctions (en dehors de celles dans le fichier `main.c`) ont étés pensées de manière à ce qu'elle puisse éventuellement être utilisées dans un autre contexte, le tout empaqueté dans une bibliothèque.
+Le code est structuré sémantiquement en plusieurs fichiers.
+Les fonctions (en dehors de celles dans le fichier `main.c`) ont été pensées de manière à ce qu'elles puissent éventuellement être utilisées dans un autre contexte, le tout empaqueté dans une bibliothèque.
 
 Ainsi, les appels à `exit(3)`, ainsi que les écritures dans la sortie standard/sortie d'erreur ne se font que dans quelques fonctions.
-La remontée des erreurs se fait via des codes de retour négatifs (cf. sections sur la gestion des erreurs).
+La remontée des erreurs se fait via des codes de retour négatifs (cf. section sur la gestion des erreurs).
 
 ## `watch.c` – Structure `Watcher`
 
-Toutes les informations relatives au lancement d'une commande est donc contenu dans une structure `Watcher`.
+Toutes les informations relatives au lancement d'une commande sont donc contenues dans une structure `Watcher`.
 
 La logique est la suivante:
 
- - Un objet `Watcher` est crée pour une commande via `create_watcher(const char *commande[])`
- - On lance `run_loop(…)` avec en paramètre le *watcher* à lancer, ainsi que les quelques paramètres type l'intervalle de temps entre les lancements, la limite du nombre de lancements, etc.
- - `run_loop` va faire plusieurs appels à `run_watcher(Watcher w)`, qui elle lance une fois la commande associée au *watcher*, en comparant sa sortie standard avec la sortie standard du lancement précédent.
+ - Un objet `Watcher` est créé pour une commande via `create_watcher(const char *commande[])`
+ - On lance `run_loop(…)` avec en paramètre le *watcher* à lancer, ainsi que quelques paramètres comme l'intervalle de temps entre les lancements, la limite du nombre de lancements, etc.
+ - `run_loop` va faire plusieurs appels à `run_watcher(Watcher w)`, qu'elle lance une fois la commande associée au *watcher*, en comparant sa sortie standard avec la sortie standard du lancement précédent.
    `run_watcher` retourne `1` si un changement a été constaté, et `0` sinon.
- - `run_loop` s'occupe ainsi de la logique d'affichage, d'intervalle entre les exécutions, de la limite du nombre d'exécution, de l'affichage du temps si besoin, et de la comparaison du code de sortie si besoin.
+ - `run_loop` s'occupe ainsi de la logique d'affichage, de l'intervalle entre les exécutions, de la limite du nombre d'exécution, de l'affichage du temps si besoin, et de la comparaison du code de sortie si besoin.
  - `free_watcher` est ensuite appelé pour désallouer le *watcher*, ainsi que le *buffer* qu'il utilise en interne.
 
-La structure `Watcher` contient ces champs:
+La structure `Watcher` contient les champs suivants :
 
   - `Buffer last_output`: *buffer* contenant la sortie de la dernière exécution
   - `int last_status`: code de retour de la dernière exécution
-  - `int run_count`: nombre d'exécution de la commande
-  - `int exec_failure`: `1` si la dernière exécutions a échoué (par exemple, si le binaire n'existe pas)
+  - `int run_count`: nombre d'exécutions de la commande
+  - `int exec_failure`: `1` si la dernière exécution a échoué (par exemple, si le binaire n'existe pas)
   - `char **command`: la commande à exécuter
 
 Cette structure est mutable, et est modifiée par effet de bord par `run_watcher`.
@@ -56,13 +56,13 @@ typedef struct s_buffer {
 } *Buffer;
 ```
 
-`buffer.c` contient ainsi les fonctions relatives à la gestion de ces *buffers*.
+`buffer.c` contient ainsi les fonctions relatives à la gestion de ces *buffers* :
 
 
  - `Buffer create_buffer(void)` alloue un nouveau *buffer*
  - `void free_buffer(Buffer)` libère (récursivement) un *buffer*
  - `int print_buffer(Buffer)` affiche (récursivement) le contenu d'un *buffer* dans la sortie standard
- - `int compare_buffers(Buffer a, Buffer b)` compare le contenu de deux *buffers*
+ - `int compare_buffers(Buffer a, Buffer b)` compare le contenu de deux *buffers* (retourne `1` si ces contenus sont identiques, `0` sinon)
  - `Buffer read_to_buffer(int fd)` lit depuis un descripteur de fichier, et stocke le résultat dans **un** *buffer*
 
 ## `spawn.c` – Lancement des commandes
@@ -90,7 +90,7 @@ Ainsi, les fonctions comme `spawn`, `read_to_buffer`, etc. vont également retou
 
 On retrouve ainsi dans le code des appels type `TRY(pid = fork())`.
 
-Aussi, cette macro va enregistré ce qui a été passé en paramètre (cette fois, en non-évalué) dans une variable globale `errsrc`, permettant ainsi de tracer d'où vient l'erreur.
+Aussi, cette macro va enregistrer ce qui a été passé en paramètre (cette fois, en non-évalué) dans une variable globale `errsrc`, permettant ainsi de tracer d'où vient l'erreur.
 La valeur de `errsrc` peut être obtenue via `char *geterr(void)`, définie dans `util.c`.
 
 Cela permet d'avoir, dans `main.c`, le code suivant:
@@ -104,7 +104,7 @@ if (run_loop(w, opt_format, opt_interval,
 }
 ```
 
-Si à un moment une primitive système a échouée, `run_loop` va retourner `-1`, et l'on va afficher à l'utilisateur l'appel système qui a échoué.
+Si à un moment l'appel à une primitive système a échoué, `run_loop` retourne `-1`, et on affiche à l'utilisateur l'appel système qui a échoué.
 
 Par exemple, si le `pipe` dans `spawn.c` échoue, on retrouvera dans la sortie d'erreur:
 
@@ -115,14 +115,14 @@ Cette méthode n'est probablement pas *idéale* (par exemple, les erreurs après
 ## Remontée des erreurs depuis le fils
 
 Pour signaler une erreur dans l'exécution dans le fils, le fils envoie un signal `SIGUSR1` au parent.
-Ce signal est capturé par le parent, et le flag `watcher->exec_failure` est mis à `1` sur le *watcher*.
+Ce signal est capturé par le parent, et le flag `watcher->exec_failure` est mis à `1` dans le *watcher*.
 
 La fonction capturant le signal est mise en place via `install_signal`, supprimée par `restore_signal`, respectivement au début et à la fin de `run_loop`.
 Ces fonctions sauvegardent le *watcher* concerné dans la variable statique `installed_watcher`.
 
 # Jeux de tests
 
-Des tests supplémentaires ont été écrits, soit pour des raisons de couvertures, ou simplement pour des cas qui n'étaient pas testés, et qui posaient problème dans notre implémentation initiale.
+Des tests supplémentaires ont été écrits, soit pour des raisons de couverture, ou simplement pour des cas qui n'étaient pas testés, et qui posaient problème dans notre implémentation initiale.
 
 Dans `test-110.sh`, des tests couvrent les cas de:
 
@@ -140,7 +140,7 @@ Ce test est effectué pour avoir un cas où la sortie n'est pas la même, mais e
 Dans la première implémentation de `read_to_buffer`, un seul appel à `read` était fait.
 Cela ne posait pas problème dans les jeux de tests fournis, puisque les données arrivaient suffisamment "rapidement" pour systématiquement remplir entièrement le *buffer*.
 
-Cependant, cela posait problème où l'écriture dans la sortie standard se faisait en deux parties.
+Cependant, cela posait problème dans le cas où l'écriture dans la sortie standard se faisait en deux parties.
 Par exemple, si lors de deux exécution, la commande écrivait les 15 même caractères, mais lors de la première exécution, elle en écrivait 5 puis les 10 autres, alors que dans la seconde exécution elle écrivait les 8 premiers puis les 7 autres, la comparaison des *buffers* indiquait que la sortie n'étais *pas* la même, alors que c'était le cas.
 
 Nous avons donc écrit un petit programme en C – `src/test-150-script.c` – qui a ce comportement.
