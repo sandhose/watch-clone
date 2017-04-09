@@ -31,7 +31,7 @@ RAPPORT = rapport.pdf
 META    = rapport-meta.yml
 
 ARCHIVE	= $(NAME)-gliech-greget
-FILES   = $(SOURCES) $(HEADERS) $(TESTS) $(RAPPORT) $(README) src/test-150-script.c Makefile .indent.pro
+FILES   = $(SOURCES) $(HEADERS) $(TESTS) $(RAPPORT) $(README) $(META) src/test-150-script.c Makefile .indent.pro
 
 SOURCES	= src/buffer.c src/main.c src/spawn.c src/util.c src/watch.c
 HEADERS	= src/buffer.h src/spawn.h src/util.h src/watch.h
