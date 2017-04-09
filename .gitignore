@@ -5,4 +5,5 @@ test-*.log
 tags
 *.tmp
 *.gcov
+rapport.pdf
 detecter-*.tar.gz

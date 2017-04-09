@@ -39,11 +39,11 @@ TESTS	= test/test-100.sh test/test-110.sh test/test-120.sh test/test-130.sh test
 
 OBJECTS	= $(SOURCES:src/%.c=obj/%.o)
 
-.PHONY: all
-all: ctags $(PROGS) $(ARCHIVE).tar.gz
-
 $(NAME): bin/main
 	ln -sf $< $@
+
+.PHONY: all
+all: ctags $(PROGS) $(RAPPORT)
 
 # Generated with `gcc -MM src/*.c`
 obj/buffer.o: src/buffer.c src/buffer.h src/util.h
@@ -68,14 +68,17 @@ coverage: clean
 
 .PHONY: gcov
 gcov:
-	gcov -o obj/ src/*.c
+	gcov -o obj/ $(SOURCES)
 
 $(RAPPORT): $(README)
 	pandoc --latex-engine=xelatex $< -o $@
 
+.PHONY: archive
+archive: clean coverage test gcov $(ARCHIVE).tar.gz
+
 $(ARCHIVE).tar.gz: $(FILES)
 	ln -s . $(ARCHIVE)
-	tar -czvf $@ $(^:%=$(ARCHIVE)/%)
+	tar -czvf $@ $(^:%=$(ARCHIVE)/%) $(ARCHIVE)/*.gcov
 	$(RM) $(ARCHIVE)
 
 # Par défaut, "test" lance les tests sans valgrind.
